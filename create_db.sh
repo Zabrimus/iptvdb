@@ -41,5 +41,6 @@ cat scripts/normalize.sqlite3 | sqlite3 tmp/tmp_database.db
 
 echo "vacuum" | sqlite3 tmp/tmp_database.db
 
+mkdir -p release
 mv tmp/tmp_database.db release/iptv-database.db
 rm -Rf tmp
