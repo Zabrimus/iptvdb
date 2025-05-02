@@ -1,0 +1,70 @@
+name: Update Database
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 1 * * *'
+
+permissions: write-all
+
+jobs:
+  update:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create database
+        run: |
+            ./create_db.sh
+
+      - uses: oprypin/find-latest-tag@v1
+        with:
+          repository:  ${{ github.repository }}
+          releases-only: true
+        id: current_release_tag
+
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+
+      - name: create release tag file
+        id: create_release_tag
+        run: |
+          CURRENT_TAG=${{ steps.current_release_tag.outputs.tag }}
+
+          if [[ ! ${CURRENT_TAG} =~ ^${{ steps.date.outputs.date }} ]]; then
+            TAG="${{ steps.date.outputs.date }}.1"
+          else
+            if [[ "${CURRENT_TAG}" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}\.[0-9]+$ ]]; then
+              TAG=$(echo "${CURRENT_TAG}" | perl -pe 's/(\d+)(?!.*\d+)/$1+1/e')
+            else
+              TAG="${{ steps.date.outputs.date }}.1"
+            fi
+          fi
+
+          echo "CURRENT_RELEASE_TAG=${TAG}" >> $GITHUB_ENV
+
+      - name: Create release and upload file
+        run: |
+          # create release          
+          gh release create "${{ env.CURRENT_RELEASE_TAG }}" -n 'Latest Version' -R ${{ github.repository }} 
+          gh release upload "${{ env.CURRENT_RELEASE_TAG }}" release/iptv-database.db -R ${{ github.repository }}
+
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  delete-old-releases:
+    needs: [update]
+    name: delete-old-releases
+    runs-on: ubuntu-22.04
+    if: ${{ always() }}
+    steps:
+      - uses: dev-drprasad/delete-older-releases@v0.2.0
+        with:
+          repo: Zabrimus/iptvdb
+          keep_latest: 1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

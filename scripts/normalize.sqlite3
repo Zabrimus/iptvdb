@@ -1,0 +1,60 @@
+-- Table epg_channels, Field site
+create table site (
+                      id integer primary key,
+                      name TEXT,
+                      UNIQUE(name)
+);
+
+insert or ignore into site(name)
+    select distinct tmp_site
+    from epg_channels;
+
+alter table epg_channels add column site integer;
+
+update epg_channels as e set site = (select id from site where name = e.tmp_site);
+alter table epg_channels drop column tmp_site;
+
+-- Table epg_channels, field xmltv_id
+create table xmltv_id (
+                          id integer primary key,
+                          name TEXT,
+                          UNIQUE(name)
+);
+
+insert or ignore into xmltv_id(name)
+    select distinct tmp_xmltv_id
+    from epg_channels;
+
+alter table epg_channels add column xmltv_id INTEGER;
+
+update epg_channels as e set xmltv_id = (select id from xmltv_id where name = e.tmp_xmltv_id);
+alter table epg_channels drop column tmp_xmltv_id;
+
+insert or ignore into xmltv_id(name)
+    select distinct id
+    from channels;
+
+alter table channels add column xmltv_id INTEGER;
+
+update channels as e set xmltv_id = (select id from xmltv_id where name = e.id);
+alter table channels drop column id;
+
+-- Table feeds, field channel
+insert or ignore into xmltv_id(name)
+    select distinct channel
+    from feeds;
+
+alter table feeds add column xmltv_id INTEGER;
+
+update feeds as e set xmltv_id = (select id from xmltv_id where name = e.channel);
+alter table feeds drop column channel;
+
+-- Table streams field tvgid
+insert or ignore into xmltv_id(name)
+    select distinct tvgid
+    from streams;
+
+alter table streams add column xmltv_id INTEGER;
+
+update streams as e set xmltv_id = (select id from xmltv_id where name = e.tvgid);
+alter table streams drop column tvgid;
