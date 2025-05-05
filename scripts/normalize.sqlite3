@@ -58,3 +58,43 @@ alter table streams add column xmltv_id INTEGER;
 
 update streams as e set xmltv_id = (select id from xmltv_id where name = e.tvgid);
 alter table streams drop column tvgid;
+
+-- Create tables (split values)
+
+-- Channels.categories
+CREATE TABLE channel_categories (
+    name      TEXT,
+    country   TEXT,
+    category  TEXT,
+    unique (name, country, category)
+);
+
+WITH RECURSIVE split(name, country, category, rest) AS (
+    SELECT name, country, '', categories || ';' FROM channels where categories like '%;%'
+    UNION ALL
+    SELECT name, country, substr(rest, 0, instr(rest, ';')), substr(rest, instr(rest, ';')+1)
+    FROM split
+    WHERE rest <> '')
+INSERT OR IGNORE INTO channel_categories
+    SELECT name, country, category
+    FROM split
+    WHERE category <> '';
+
+-- Countries.languages
+CREATE TABLE country_languages (
+     code      TEXT,
+     language  TEXT,
+     unique (code, language)
+);
+
+WITH RECURSIVE split(name, language, rest) AS (
+    SELECT code, '', languages || ';' FROM countries where languages like '%;%'
+    UNION ALL
+    SELECT name,  substr(rest, 0, instr(rest, ';')), substr(rest, instr(rest, ';')+1)
+    FROM split
+    WHERE rest <> '')
+INSERT OR IGNORE INTO country_languages
+    SELECT name, language
+    FROM split
+    WHERE language <> ''
+    ORDER BY name, language;
