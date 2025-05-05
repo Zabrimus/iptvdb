@@ -98,3 +98,22 @@ INSERT OR IGNORE INTO country_languages
     FROM split
     WHERE language <> ''
     ORDER BY name, language;
+
+-- Feeds.languages
+CREATE TABLE feed_languages (
+     xmltv_id TEXT,
+     name     TEXT,
+     unique (xmltv_id, name)
+);
+
+WITH RECURSIVE split(xmltv_id, language, rest) AS (
+    SELECT xmltv_id, '', languages || ';' FROM feeds where languages like '%;%'
+    UNION ALL
+    SELECT xmltv_id,  substr(rest, 0, instr(rest, ';')), substr(rest, instr(rest, ';')+1)
+    FROM split
+    WHERE rest <> '')
+INSERT OR IGNORE INTO feed_languages
+SELECT xmltv_id, language
+FROM split
+WHERE language <> ''
+ORDER BY xmltv_id, language;
