@@ -2,7 +2,7 @@
 
 use strict;
 
-print "tmp_site,lang,tmp_xmltv_id,site_id,name\n";
+print "site,lang,xmltv_id,site_id,name\n";
 while (my $line = <>) {
     $line =~ /<channel.*site="(.*?)".*lang="(.*?)".*xmltv_id="(.*?)".*site_id="(.*?)".*>(.*?)<\/channel>/;
 

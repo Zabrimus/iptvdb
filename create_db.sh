@@ -37,7 +37,7 @@ for table in streams channels blocklist categories countries epg_channels feeds 
 done
 
 # normalize a bit
-cat scripts/normalize.sqlite3 | sqlite3 tmp/tmp_database.db
+# cat scripts/normalize.sqlite3 | sqlite3 tmp/tmp_database.db
 
 echo "vacuum" | sqlite3 tmp/tmp_database.db
 
