@@ -2,7 +2,13 @@
 
 use strict;
 
-my @lines = <>;
+my $filename = $ARGV[$0];
+my $base = `basename $filename`;
+chop($base);
+
+open(FILE, $filename);
+
+my @lines = <FILE>;
 for (my $i = 0; $i <= $#lines; $i++) {
     $lines[$i] =~ s/\R//g;
 }
@@ -40,6 +46,6 @@ for (my $i = 0; $i <= $#lines; $i++) {
         $url = $lines[$i+1];
         $url =~ s/"/&quot;/g;
 
-        print "\"$tvgid\",\"$referrer\",\"$userAgent\",\"$name\",\"$url\"\n"
+        print "\"$tvgid\",\"$referrer\",\"$userAgent\",\"$name\",\"$url\",\"$base\"\n"
     }
 }
