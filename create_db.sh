@@ -39,7 +39,10 @@ for table in streams channels blocklist categories countries epg_channels feeds 
 done
 
 # normalize a bit
-cat scripts/change_database.sql | sqlite3 tmp/tmp_database.db
+cat scripts/change_database.sql | sqlite3 -echo tmp/tmp_database.db
+
+scripts/fix_xmltvid.sh
+cat tmp/fix_script_1.sql | sqlite3 -echo tmp/tmp_database.db
 
 echo "vacuum" | sqlite3 tmp/tmp_database.db
 

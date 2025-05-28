@@ -11,7 +11,7 @@ WHERE xmltv_id like '%@%';
 update epg_channels set country = 'UK' where country in ('GB');
 update epg_channels set country = 'CA' where country in ('QC', 'BC', 'AB', 'NS', 'NB');
 update epg_channels set country = 'UK' where country = 'GB';
-update epg_channels set country = 'US' where country in ('TX', 'AK', 'HI', 'WA', 'IA', 'WY', 'PX',  'NV', 'NY', 'NJ', 'CT', 'DC', 'EX', 'FA', 'FL', 'Ga', 'HO', 'Hi', 'Il', 'In', 'KS', 'La', 'MB', 'MI', 'UT', 'OR', 'OH', 'OK', 'RI', 'WV', 'VT', 'ON', 'WI', 'NM', 'NH', 'ND', 'Me', 'Mi', 'Mo', 'Oh', 'Ok', 'Wi', 'Or', 'Pa', 'Ut', 'Va', 'Md', 'Mt', 'Ms', 'NT', 'OA', 'On', 'Sk', 'YK', 'iA');
+update epg_channels set country = 'US' where country in ('AZ', 'TX', 'AK', 'HI', 'WA', 'IA', 'WY', 'PX',  'NV', 'NY', 'NJ', 'CT', 'DC', 'EX', 'FA', 'FL', 'Ga', 'HO', 'Hi', 'Il', 'In', 'KS', 'La', 'MB', 'MI', 'UT', 'OR', 'OH', 'OK', 'RI', 'WV', 'VT', 'ON', 'WI', 'NM', 'NH', 'ND', 'Me', 'Mi', 'Mo', 'Oh', 'Ok', 'Wi', 'Or', 'Pa', 'Ut', 'Va', 'Md', 'Mt', 'Ms', 'NT', 'OA', 'On', 'Sk', 'YK', 'iA');
 
 -- add country in epg_channels
 update epg_channels set country = (select alpha2 from tld where substr(xmltv_id, instr(xmltv_id, '.')) = tld) where country is null;
@@ -34,11 +34,6 @@ where name like '%(%';
 update streams set name = trim(IIF(instr(name, '[') > 0, substr(name, 0, instr(name, '[')), name))
 where name like '%[%';
 
--- change values of tvgid in table streams (strip @-part)
-UPDATE streams
-SET tvgid = SUBSTR(tvgid, 1, INSTR(tvgid, '@') - 1)
-WHERE tvgid like '%@%';
-
 -- create new column in table streams and try to fill the new column
 ALTER TABLE streams ADD COLUMN country TEXT;
 UPDATE streams SET country = (SELECT alpha2 FROM tld WHERE substr(tvgid, instr(tvgid, '.')) = tld);
@@ -60,6 +55,7 @@ CREATE table xmltvid (
     name     TEXT,
     country  TEXT,
 
+    UNIQUE(xmltv_id),
     UNIQUE(xmltv_id, name, country) -- without this, the performance degrades massively
 );
 
@@ -70,9 +66,21 @@ CREATE UNIQUE INDEX xmltvid_idx ON xmltvid (
 );
 
 -- fill table xmltvid
-INSERT OR IGNORE INTO xmltvid(xmltv_id, name, country) SELECT c.id, c.name, c.country FROM channels c;
-INSERT OR IGNORE INTO xmltvid(xmltv_id, name, country) SELECT e.xmltv_id, e.name, e.country FROM epg_channels e;
-INSERT OR IGNORE INTO xmltvid(xmltv_id, name, country) SELECT s.tvgid, s.name, s.country FROM streams s;
+INSERT INTO xmltvid(xmltv_id, name, country)
+    SELECT c.id, c.name, c.country FROM channels c
+    WHERE true
+ON CONFLICT(xmltv_id) DO UPDATE SET name = coalesce(name, excluded.name), country = coalesce(country, excluded.country);
+
+INSERT INTO xmltvid(xmltv_id, name, country)
+SELECT s.tvgid, s.name, s.country FROM streams s
+WHERE true
+ON CONFLICT(xmltv_id) DO UPDATE SET name = coalesce(name, excluded.name), country = coalesce(country, excluded.country);
+
+INSERT INTO xmltvid(xmltv_id, name, country)
+SELECT e.xmltv_id, e.name, e.country FROM epg_channels e
+WHERE true
+ON CONFLICT(xmltv_id) DO UPDATE SET name = coalesce(name, excluded.name), country = coalesce(country, excluded.country);
+
 
 DELETE from xmltvid where name is null;
 
@@ -133,7 +141,7 @@ INSERT INTO channels_new
             replaced_by,
             website,
             logo,
-            (SELECT id FROM xmltvid x WHERE x.xmltv_id = c.id AND  x.name = c.name AND x.country = c.country) a
+            (SELECT id FROM xmltvid x WHERE x.xmltv_id = c.id) a
      FROM channels c
      WHERE a is not null;
 
@@ -141,64 +149,20 @@ INSERT INTO streams_new
     SELECT referrer,
            user_agent,
            url,
-           (SELECT id FROM xmltvid x WHERE x.xmltv_id = c.tvgid AND x.name = c.name AND x.country = c.country)
+           (SELECT id FROM xmltvid x WHERE x.xmltv_id = c.tvgid)
     FROM streams c
     WHERE c.tvgid is not null
       AND c.country is not null;
-
-INSERT INTO streams_new
-        SELECT referrer,
-               user_agent,
-               url,
-               (SELECT id FROM xmltvid x WHERE x.xmltv_id = c.tvgid AND x.name = c.name AND x.country is null)
-        FROM streams c
-        WHERE c.tvgid is not null
-          AND c.country is null;
-
-INSERT INTO streams_new
-    SELECT referrer,
-           user_agent,
-           url,
-           (SELECT id FROM xmltvid x WHERE x.xmltv_id is null AND x.name = c.name AND x.country is null)
-    FROM streams c
-    WHERE c.tvgid is null
-      AND c.country is null;
 
 -- epg channels without xmltv_id
 INSERT INTO epg_channels_new
         SELECT site,
                lang,
                site_id,
-               (SELECT id FROM xmltvid x WHERE x.xmltv_id = c.xmltv_id AND x.name = c.name AND x.country = c.country)
+               (SELECT id FROM xmltvid x WHERE x.xmltv_id = c.xmltv_id)
         FROM epg_channels c
         WHERE c.xmltv_id is not null
          AND  c.country is not null;
-
-INSERT INTO epg_channels_new
-        SELECT site,
-               lang,
-               site_id,
-               (SELECT id FROM xmltvid x WHERE x.xmltv_id is null AND x.name = c.name AND x.country = c.country)
-        FROM epg_channels c
-        WHERE c.xmltv_id is null
-         AND  c.country is not null;
-
-INSERT INTO epg_channels_new
-        SELECT site,
-               lang,
-               site_id,
-               (SELECT id FROM xmltvid x WHERE x.xmltv_id is null AND x.name = c.name AND x.country is null)
-        FROM epg_channels c
-        WHERE c.xmltv_id is null
-         AND  c.country is null;
-
-INSERT INTO epg_channels_new
-     SELECT site,
-            lang,
-            site_id,
-            (SELECT id FROM xmltvid x WHERE x.xmltv_id = c.xmltv_id AND x.name = c.name AND x.country = c.country) a
-     FROM epg_channels c
-     WHERE a is not null;
 
 PRAGMA foreign_keys=on;
 

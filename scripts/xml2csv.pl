@@ -34,5 +34,9 @@ while (my $line = <>) {
         $name = $1;
     }
 
+    if (not defined $xmltv_id or $xmltv_id eq '') {
+        $xmltv_id = '--' || $name;
+    }
+
     print "\"$site\",\"$lang\",\"$xmltv_id\",\"$site_id\",\"$name\",\"$country\"\n" if $site;
 }
