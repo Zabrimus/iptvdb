@@ -19,8 +19,15 @@ update epg_channels set name = replace(name, "&amp;", "&");
 update epg_channels set name = replace(name, "&amp;", "&");
 
 ---
--- Change table streams
+-- Change tables
 ---
+-- UPDATE streams
+-- SET tvgid = SUBSTR(tvgid, 1, INSTR(tvgid, '@') - 1)
+-- WHERE tvgid like '%@%';
+
+-- UPDATE epg_channels
+-- SET xmltv_id = SUBSTR(xmltv_id, 1, INSTR(xmltv_id, '@') - 1)
+-- WHERE xmltv_id like '%@%';
 
 -- Cut name in table streams
 update streams set name = trim(IIF(instr(name, '(') > 0, substr(name, 0, instr(name, '(')), name))
@@ -34,7 +41,7 @@ ALTER TABLE streams ADD COLUMN country TEXT;
 UPDATE streams SET country = (SELECT alpha2 FROM tld WHERE substr(tvgid, instr(tvgid, '.')) = tld);
 UPDATE streams SET country = (SELECT upper(substr(file, 0, 3)) FROM countries c) WHERE country is null;
 
--- copy name to tvgid if necessary
+-- copy name to tvgid/xmltvid if necessary
 UPDATE streams
    SET tvgid = '--' || REPLACE(name, ' ', '_') || '.' || upper(substr(file, 0, 3))
  WHERE tvgid is null;
@@ -55,9 +62,13 @@ CREATE table xmltvid (
     UNIQUE(xmltv_id, xmltv_id2, name, country) -- without this, the performance degrades massively
 );
 
+CREATE INDEX xmltvid_name_idx ON xmltvid (
+    upper(name)
+);
+
 CREATE UNIQUE INDEX xmltvid_idx ON xmltvid (
    coalesce(xmltv_id, '-'),
-   coalesce(second_id, '-'),
+   coalesce(xmltv_id2, '-'),
    coalesce(name, '-'),
    coalesce(country, '-')
 );
@@ -66,17 +77,23 @@ CREATE UNIQUE INDEX xmltvid_idx ON xmltvid (
 INSERT INTO xmltvid(xmltv_id, name, country)
     SELECT c.id, c.name, c.country FROM channels c
     WHERE true
-ON CONFLICT(xmltv_id) DO UPDATE SET name = coalesce(name, excluded.name), country = coalesce(country, excluded.country);
+ON CONFLICT(xmltv_id) DO
+    UPDATE SET name = IIF(length(coalesce(name, '-')) > length(coalesce(excluded.name, '-')), name, excluded.name),
+               country = coalesce(country, excluded.country);
 
 INSERT INTO xmltvid(xmltv_id, name, country)
-SELECT s.tvgid, s.name, s.country FROM streams s
-WHERE true
-ON CONFLICT(xmltv_id) DO UPDATE SET name = coalesce(name, excluded.name), country = coalesce(country, excluded.country);
+    SELECT s.tvgid, s.name, s.country FROM streams s
+    WHERE true
+ON CONFLICT(xmltv_id) DO
+    UPDATE SET name = IIF(length(coalesce(name, '-')) > length(coalesce(excluded.name, '-')), name, excluded.name),
+               country = coalesce(country, excluded.country);
 
 INSERT INTO xmltvid(xmltv_id, name, country)
-SELECT e.xmltv_id, e.name, e.country FROM epg_channels e
-WHERE true
-ON CONFLICT(xmltv_id) DO UPDATE SET name = coalesce(name, excluded.name), country = coalesce(country, excluded.country);
+    SELECT e.xmltv_id, e.name, e.country FROM epg_channels e
+    WHERE true
+ON CONFLICT(xmltv_id) DO
+    UPDATE SET name = IIF(length(coalesce(name, '-')) > length(coalesce(excluded.name, '-')), name, excluded.name),
+               country = coalesce(country, excluded.country);
 
 
 DELETE from xmltvid where name is null;
@@ -148,8 +165,8 @@ INSERT INTO streams_new
            url,
            (SELECT id FROM xmltvid x WHERE x.xmltv_id = c.tvgid)
     FROM streams c
-    WHERE c.tvgid is not null
-      AND c.country is not null;
+    WHERE c.tvgid is not null;
+--      AND c.country is not null;
 
 -- epg channels without xmltv_id
 INSERT INTO epg_channels_new
@@ -158,8 +175,8 @@ INSERT INTO epg_channels_new
                site_id,
                (SELECT id FROM xmltvid x WHERE x.xmltv_id = c.xmltv_id)
         FROM epg_channels c
-        WHERE c.xmltv_id is not null
-         AND  c.country is not null;
+        WHERE c.xmltv_id is not null;
+--         AND  c.country is not null;
 
 PRAGMA foreign_keys=on;
 
@@ -170,6 +187,9 @@ DELETE from epg_channels_new where site_id in ('DUMMY_CHANNELS#', 'DUMMY_CHANNEL
 DROP TABLE channels;
 DROP TABLE epg_channels;
 DROP TABLE streams;
+--ALTER TABLE channels RENAME TO channels_original;
+--ALTER TABLE epg_channels RENAME TO epg_channels_original;
+--ALTER TABLE streams RENAME TO streams_original;
 
 ALTER TABLE channels_new RENAME TO channels;
 ALTER TABLE epg_channels_new RENAME TO epg_channels;
