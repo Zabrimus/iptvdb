@@ -1,5 +1,6 @@
 #!/bin/bash
 
+rm -Rf tmp
 mkdir -p tmp
 
 # Checkout or update all repositories
@@ -41,8 +42,11 @@ done
 # normalize a bit
 cat scripts/change_database.sql | sqlite3 -echo tmp/tmp_database.db
 
-scripts/fix_xmltvid.sh
+scripts/fix_xmltvid_1.sh
 cat tmp/fix_script_1.sql | sqlite3 -echo tmp/tmp_database.db
+
+scripts/fix_xmltvid_2.sh
+cat tmp/fix_script_2.sql | sqlite3 -echo tmp/tmp_database.db
 
 echo "vacuum" | sqlite3 tmp/tmp_database.db
 

@@ -2,11 +2,6 @@
 -- Change table epg_channels
 ---
 
--- change values of xmltv_id in table epg_channels (strip @-part)
-UPDATE epg_channels
-SET xmltv_id = SUBSTR(xmltv_id, 1, INSTR(xmltv_id, '@') - 1)
-WHERE xmltv_id like '%@%';
-
 -- fix some countries
 update epg_channels set country = 'UK' where country in ('GB');
 update epg_channels set country = 'CA' where country in ('QC', 'BC', 'AB', 'NS', 'NB');
@@ -41,7 +36,7 @@ UPDATE streams SET country = (SELECT upper(substr(file, 0, 3)) FROM countries c)
 
 -- copy name to tvgid if necessary
 UPDATE streams
-   SET tvgid = '--' || name || '.' || upper(substr(file, 0, 3))
+   SET tvgid = '--' || REPLACE(name, ' ', '_') || '.' || upper(substr(file, 0, 3))
  WHERE tvgid is null;
 
 ---
@@ -51,16 +46,18 @@ UPDATE streams
 -- create new table and add all foreign keys
 CREATE table xmltvid (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    xmltv_id TEXT,
-    name     TEXT,
-    country  TEXT,
+    xmltv_id  TEXT,
+    xmltv_id2 TEXT,
+    name      TEXT,
+    country   TEXT,
 
     UNIQUE(xmltv_id),
-    UNIQUE(xmltv_id, name, country) -- without this, the performance degrades massively
+    UNIQUE(xmltv_id, xmltv_id2, name, country) -- without this, the performance degrades massively
 );
 
 CREATE UNIQUE INDEX xmltvid_idx ON xmltvid (
    coalesce(xmltv_id, '-'),
+   coalesce(second_id, '-'),
    coalesce(name, '-'),
    coalesce(country, '-')
 );
