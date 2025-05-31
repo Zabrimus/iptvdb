@@ -24,7 +24,7 @@ while (my $line = <>) {
             $country = $1;
         }
 
-        $name = $2;
+        $name = trim($2);
     }
 
     # check country at the end of the name
@@ -33,11 +33,11 @@ while (my $line = <>) {
             $country = $2;
         }
 
-        $name = $1;
+        $name = trim($1);
     }
 
     if (not defined $xmltv_id or $xmltv_id eq '') {
-        $xmltv_id = '--' . trim($name);
+        $xmltv_id = '--'.trim($name);
     }
 
     print "\"$site\",\"$lang\",\"$xmltv_id\",\"$site_id\",\"$name\",\"$country\"\n" if $site;

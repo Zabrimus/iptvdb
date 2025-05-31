@@ -2,6 +2,8 @@
 
 use strict;
 
+sub  trim { my $s = shift; $s =~ s/^\s+|\s+$//g; return $s };
+
 my $filename = $ARGV[$0];
 my $base = `basename $filename`;
 chop($base);
