@@ -158,55 +158,80 @@ echo "remove useless data"
 echo "DELETE FROM epg_channels WHERE name is null and xmltv_id is null" | sqlite3 release/iptv-database.db
 
 ############################################
+# add references to table channels (part 1)
+############################################
+echo "add references to table channels"
+
+echo "ALTER TABLE streams ADD COLUMN ref_channel_id INTEGER REFERENCES channel(id)" | sqlite3 release/iptv-database.db
+echo "ALTER TABLE epg_channels ADD COLUMN ref_channel_id INTEGER REFERENCES channel(id)" | sqlite3 release/iptv-database.db
+
+
+############################################
 # add logging table and triggers
 #######################################
-if false; then
+if true; then
 echo "add logging table and triggers"
 
 cat <<'EOF' | sqlite3 release/iptv-database.db
-    CREATE TABLE logging (tab           TEXT,
-                          xmltv_id_from TEXT,
-                          xmltv_id_to   TEXT,
-                          name_from     TEXT,
-                          name_to       TEXT,
-                          country_from  TEXT,
-                          country_to    TEXT);
+    DROP TRIGGER trg_epg_channels_update;
+    DROP TRIGGER trg_streams_update;
+    DROP TABLE logging;
+
+    CREATE TABLE logging (tab                 TEXT,
+                          id                  INTEGER,
+                          xmltv_id_from       TEXT,
+                          xmltv_id_to         TEXT,
+                          name_from           TEXT,
+                          name_to             TEXT,
+                          country_from        TEXT,
+                          country_to          TEXT,
+                          ref_channel_id_from INTEGER,
+                          ref_channel_id_to   INTEGER
+                          );
 
     CREATE TRIGGER trg_epg_channels_update
        BEFORE UPDATE
        ON epg_channels
-       WHEN old.xmltv_id <> new.xmltv_id
-         OR old.name <> new.name
-         OR old.country <> new.country
+       WHEN coalesce(old.xmltv_id,'-') <> coalesce(new.xmltv_id, '-')
+         OR coalesce(old.name,'-') <> coalesce(new.name, '-')
+         OR coalesce(old.country,'-') <> coalesce(new.country, '-')
+         OR coalesce(old.ref_channel_id,'-') <> coalesce(new.ref_channel_id, '-')
     BEGIN
-        INSERT INTO logging (tab, xmltv_id_from, xmltv_id_to, name_from, name_to, country_from, country_to)
+        INSERT INTO logging (tab, id, xmltv_id_from, xmltv_id_to, name_from, name_to, country_from, country_to, ref_channel_id_from, ref_channel_id_to)
         VALUES  (
             'epg_channels',
-            IIF(old.xmltv_id <> new.xmltv_id, old.xmltv_id, null),
-            IIF(old.xmltv_id <> new.xmltv_id, new.xmltv_id, null),
-            IIF(old.name <> new.name, old.name, null),
-            IIF(old.name <> new.name, new.name, null),
-            IIF(old.country <> new.country, old.country, null),
-            IIF(old.country <> new.country, new.country, null)
+            new.id,
+            IIF(coalesce(old.xmltv_id, '-') <> coalesce(new.xmltv_id, '-'), old.xmltv_id, null),
+            IIF(coalesce(old.xmltv_id, '-') <> coalesce(new.xmltv_id, '-'), new.xmltv_id, null),
+            IIF(coalesce(old.name, '-') <> coalesce(new.name, '-'), old.name, null),
+            IIF(coalesce(old.name, '-') <> coalesce(new.name, '-'), new.name, null),
+            IIF(coalesce(old.country, '-') <> coalesce(new.country, '-'), old.country, null),
+            IIF(coalesce(old.country, '-') <> coalesce(new.country, '-'), new.country, null),
+            IIF(coalesce(old.ref_channel_id, '-') <> coalesce(new.ref_channel_id, '-'), old.ref_channel_id, null),
+            IIF(coalesce(old.ref_channel_id, '-') <> coalesce(new.ref_channel_id, '-'), new.ref_channel_id, null)
           );
     END;
 
     CREATE TRIGGER trg_streams_update
        BEFORE UPDATE
        ON streams
-       WHEN old.xmltv_id <> new.xmltv_id
-         OR old.name <> new.name
-         OR old.country <> new.country
+       WHEN coalesce(old.xmltv_id,'-') <> coalesce(new.xmltv_id, '-')
+         OR coalesce(old.name,'-') <> coalesce(new.name, '-')
+         OR coalesce(old.country,'-') <> coalesce(new.country, '-')
+         OR coalesce(old.ref_channel_id,'-') <> coalesce(new.ref_channel_id, '-')
     BEGIN
-        INSERT INTO logging (tab, xmltv_id_from, xmltv_id_to, name_from, name_to, country_from, country_to)
+        INSERT INTO logging (tab, id, xmltv_id_from, xmltv_id_to, name_from, name_to, country_from, country_to, ref_channel_id_from, ref_channel_id_to)
         VALUES  (
             'streams',
-            IIF(old.xmltv_id <> new.xmltv_id, old.xmltv_id, null),
-            IIF(old.xmltv_id <> new.xmltv_id, new.xmltv_id, null),
-            IIF(old.name <> new.name, old.name, null),
-            IIF(old.name <> new.name, new.name, null),
-            IIF(old.country <> new.country, old.country, null),
-            IIF(old.country <> new.country, new.country, null)
+            new.id,
+            IIF(coalesce(old.xmltv_id, '-') <> coalesce(new.xmltv_id, '-'), old.xmltv_id, null),
+            IIF(coalesce(old.xmltv_id, '-') <> coalesce(new.xmltv_id, '-'), new.xmltv_id, null),
+            IIF(coalesce(old.name, '-') <> coalesce(new.name, '-'), old.name, null),
+            IIF(coalesce(old.name, '-') <> coalesce(new.name, '-'), new.name, null),
+            IIF(coalesce(old.country, '-') <> coalesce(new.country, '-'), old.country, null),
+            IIF(coalesce(old.country, '-') <> coalesce(new.country, '-'), new.country, null),
+            IIF(coalesce(old.ref_channel_id, '-')<> coalesce(new.ref_channel_id, '-'), old.ref_channel_id, null),
+            IIF(coalesce(old.ref_channel_id, '-') <> coalesce(new.ref_channel_id, '-'), new.ref_channel_id, null)
           );
     END;
 EOF
@@ -340,12 +365,9 @@ cat tmp_name | sqlite3 release/iptv-database.db
 rm tmp_name
 
 ############################################
-# add references to table channels
+# add references to table channels (part 2)
 ############################################
 echo "add references to table channels"
-
-echo "ALTER TABLE streams ADD COLUMN ref_channel_id INTEGER REFERENCES channel(id)" | sqlite3 release/iptv-database.db
-echo "ALTER TABLE epg_channels ADD COLUMN ref_channel_id INTEGER REFERENCES channel(id)" | sqlite3 release/iptv-database.db
 
 cat <<'EOF' | sqlite3 release/iptv-database.db
     UPDATE epg_channels
