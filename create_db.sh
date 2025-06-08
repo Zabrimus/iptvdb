@@ -75,6 +75,9 @@ sqlite3 -csv release/iptv-database.db ".import scripts/data/tld.csv tld"
 echo "Import country_mapping"
 sqlite3 -csv release/iptv-database.db ".import scripts/data/country_mapping.csv country_mapping"
 
+# other epg provider
+echo "Import other epg provider"
+sqlite3 -csv release/iptv-database.db ".import scripts/data/other_epg.csv other_epg"
 
 #############################
 # first cleanup tables
