@@ -1,7 +1,6 @@
 #!/bin/bash
 
-rm -Rf tmp
-mkdir -p tmp
+mkdir -p release
 
 # Checkout or update all repositories
 if [ -d epg ]; then
@@ -21,6 +20,7 @@ if [ -d iptv ]; then
 else
     git clone --depth 1 -b master https://github.com/iptv-org/iptv.git
 fi
+
 
 # clean tables if they exists
 if [ -e release/iptv-database.db ]; then
