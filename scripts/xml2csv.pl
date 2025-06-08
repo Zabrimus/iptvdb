@@ -14,31 +14,14 @@ while (my $line = <>) {
     my $name = $5;
     my $country;
 
-    # the site_id can contain the country
-    if ($site_id =~ /.*?\.([a-zA-Z]{2})$/) {
-        $country = uc $1;
-    }
+    $name =~ s/\[.*?$//g;
+    $name =~ s/\(.*?$//g;
+    $name = trim($name);
 
-    if ($name =~ /^\((..)\)(.*?)$/) {
-        if (!(defined $country and length $country)) {
-            $country = $1;
-        }
+    $name =~ s/HD$//g;
+    $name =~ s/4K$//g;
+    $name =~ s/UHD$//g;
+    $name = trim($name);
 
-        $name = trim($2);
-    }
-
-    # check country at the end of the name
-    if ($name =~ /^(.*?), ([a-zA-Z]{2})$/) {
-        if (!(defined $country and length $country)) {
-            $country = $2;
-        }
-
-        $name = trim($1);
-    }
-
-    if (not defined $xmltv_id or $xmltv_id eq '') {
-        $xmltv_id = '--'.trim($name);
-    }
-
-    print "\"$site\",\"$lang\",\"$xmltv_id\",\"$site_id\",\"$name\",\"$country\"\n" if $site;
+    print "\"$site\",\"$lang\",\"$xmltv_id\",\"$site_id\",\"$name\",\"$country\"\,0\\n" if $site;
 }

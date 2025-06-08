@@ -48,6 +48,15 @@ for (my $i = 0; $i <= $#lines; $i++) {
         $url = $lines[$i+1];
         $url =~ s/"/&quot;/g;
 
-        print "\"$tvgid\",\"$referrer\",\"$userAgent\",\"$name\",\"$url\",\"$base\"\n"
+        $name =~ s/\[.*?$//g;
+        $name =~ s/\(.*?$//g;
+        $name = trim($name);
+
+        $name =~ s/HD$//g;
+        $name =~ s/4K$//g;
+        $name =~ s/UHD$//g;
+        $name = trim($name);
+
+        print "\"$tvgid\",\"$referrer\",\"$userAgent\",\"$name\",\"$url\",\"$base\",\"\",0\\n"
     }
 }
