@@ -255,6 +255,14 @@ cat <<'EOF' | sqlite3 release/iptv-database.db
     DELETE from channels where name = 'SWR Fernsehen HD';
 
     UPDATE channels
+    SET name = 'AXN White'
+    WHERE xmltv_id = 'SonyChannel.de';
+
+    UPDATE epg_channels
+    SET name = 'AXN White'
+    WHERE xmltv_id = 'SonyChannel.de';
+
+    UPDATE channels
     SET (xmltv_id, name) = (SELECT xmltv_id_new, name_new FROM fix_channels WHERE channels.name = name_old)
     WHERE channels.name IN (SELECT name_old FROM fix_channels);
 
