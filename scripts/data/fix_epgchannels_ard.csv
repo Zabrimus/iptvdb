@@ -1,0 +1,71 @@
+name_old,xmltv_id_new,name_new,country
+BR,BRFernsehen.de@Sued,BR Fernsehen Süd,DE
+BR Fernsehen,BRFernsehen.de@Sued,BR Fernsehen Süd,DE
+BR Fernsehen Nord,BRFernsehen.de@Nord,BR Fernsehen Nord,DE
+BR Fernsehen Süd,BRFernsehen.de@Sued,BR Fernsehen Süd,DE
+MDR,MDRFernsehen.de@Sachsen,MDR Fernsehen Sachsen,DE
+MDR Fernsehen,MDRFernsehen.de@Sachsen,MDR Fernsehen Sachsen,DE
+MDR Sachsen,MDRFernsehen.de@Sachsen,MDR Fernsehen Sachsen,DE
+MDR Sachsen-Anhalt,MDRFernsehen.de@SachsenAnhalt,MDR Fernsehen Sachsen-Anhalt,DE
+MDR Thüringen,MDRFernsehen.de@Thueringen,MDR Fernsehen Thüringen,DE
+MDR-Fernsehen Sachsen,MDRFernsehen.de@Sachsen,MDR Fernsehen Sachsen,DE
+MDR-Fernsehen Sachsen-Anhalt,MDRFernsehen.de@SachsenAnhalt,MDR Fernsehen Sachsen-Anhalt,DE
+MDR-Fernsehen Thüringen,MDRFernsehen.de@Thueringen,MDR Fernsehen Thüringen,DE
+NDR,NDRFernsehen.de@Hamburg,NDR Fernsehen Hamburg,DE
+NDR Fernsehen,NDRFernsehen.de@Hamburg,NDR Fernsehen Hamburg,DE
+NDR Fernsehen Hamburg,NDRFernsehen.de@Hamburg,NDR Fernsehen Hamburg,DE
+NDR Fernsehen HH,NDRFernsehen.de@Hamburg,NDR Fernsehen Hamburg,DE
+NDR Fernsehen Mecklenburg-Vorpommern,NDRFernsehen.de@MecklenburgVorpommern,NDR Fernsehen Mecklenburg-Vorpommern,DE
+NDR Fernsehen MV,NDRFernsehen.de@MecklenburgVorpommern,NDR Fernsehen Mecklenburg-Vorpommern,DE
+NDR Fernsehen NDS,NDRFernsehen.de@Niedersachsen,NDR Fernsehen Niedersachsen,DE
+NDR Fernsehen Niedersachsen,NDRFernsehen.de@Niedersachsen,NDR Fernsehen Niedersachsen,DE
+NDR Fernsehen Schleswig-Holstein,NDRFernsehen.de@SchleswigHolstein,NDR Fernsehen Schleswig-Holstein,DE
+NDR Fernsehen SH,NDRFernsehen.de@SchleswigHolstein,NDR Fernsehen Schleswig-Holstein,DE
+NDR Hamburg,NDRFernsehen.de@Hamburg,NDR Fernsehen Hamburg,DE
+NDR Mecklenburg-Vorpommern,NDRFernsehen.de@MecklenburgVorpommern,NDR Fernsehen Mecklenburg-Vorpommern,DE
+NDR Niedersachsen,NDRFernsehen.de@Niedersachsen,NDR Fernsehen Niedersachsen,DE
+NDR Schleswig-Holstein,NDRFernsehen.de@SchleswigHolstein,NDR Fernsehen Schleswig-Holstein,DE
+RBB,rbbFernsehen.de@Berlin,rbb Fernsehen Berlin,DE
+rbb,rbbFernsehen.de@Berlin,rbb Fernsehen Berlin,DE
+rbb Berlin,rbbFernsehen.de@Berlin,rbb Fernsehen Berlin,DE
+RBB Berlin,rbbFernsehen.de@Berlin,rbb Fernsehen Berlin,DE
+RBB Berlin Fernsehen,rbbFernsehen.de@Berlin,rbb Fernsehen Berlin,DE
+RBB Brandenburg,rbbFernsehen.de@Brandenburg,rbb Fernsehen Brandenburg,DE
+RBB Brandenburg Fernsehen,rbbFernsehen.de@Brandenburg,rbb Fernsehen Brandenburg,DE
+RBB Fernsehen,rbbFernsehen.de@Berlin,rbb Fernsehen Berlin,DE
+rbb fernsehen Berlin,rbbFernsehen.de@Berlin,rbb Fernsehen Berlin,DE
+RBB Fernsehen Berlin,rbbFernsehen.de@Berlin,rbb Fernsehen Berlin,DE
+rbb fernsehen Brandenburg,rbbFernsehen.de@Brandenburg,rbb Fernsehen Brandenburg,DE
+RBB Fernsehen Brandenburg,rbbFernsehen.de@Brandenburg,rbb Fernsehen Brandenburg,DE
+SWR,SWRFernsehen.de@BadenWuerttemberg,SWR Fernsehen Baden-Württemberg,DE
+SWR Baden-Württemberg,SWRFernsehen.de@BadenWuerttemberg,SWR Fernsehen Baden-Württemberg,DE
+SWR Fernsehen,SWRFernsehen.de@BadenWuerttemberg,SWR Fernsehen Baden-Württemberg,DE
+SWR Fernsehen BW,SWRFernsehen.de@BadenWuerttemberg,SWR Fernsehen Baden-Württemberg,DE
+SWR Fernsehen RP,SWRFernsehen.de@RheinlandPfalz,SWR Fernsehen Rheinland-Pfalz,DE
+SWR-Fernsehen,SWRFernsehen.de@BadenWuerttemberg,SWR Fernsehen Baden-Württemberg,DE
+SWR/SR,SWRFernsehen.de@BadenWuerttemberg,SWR Fernsehen Baden-Württemberg,DE
+SWR1 Baden-Württemberg,SWRFernsehen.de@BadenWuerttemberg,SWR Fernsehen Baden-Württemberg,DE
+WDR,WDRFernsehen.de@Koeln,WDR Fernsehen Köln,DE
+WDR Aachen,WDRFernsehen.de@Aachen,WDR Fernsehen Aachen,DE
+WDR Bielefeld,WDRFernsehen.de@Bielefeld,WDR Fernsehen Bielefeld,DE
+WDR Bonn,WDRFernsehen.de@Bonn,WDR Fernsehen Bonn,DE
+WDR Dortmund,WDRFernsehen.de@Dortmund,WDR Fernsehen Dortmund,DE
+WDR Duisburg,WDRFernsehen.de@Duisburg,WDR Fernsehen Duisburg,DE
+WDR Düsseldorf,WDRFernsehen.de@Duesseldorf,WDR Fernsehen Düsseldorf,DE
+WDR Essen,WDRFernsehen.de@Essen,WDR Fernsehen Essen,DE
+WDR Fernsehen,WDRFernsehen.de@Koeln,WDR Fernsehen Köln,DE
+WDR Fernsehen Aachen,WDRFernsehen.de@Aachen,WDR Fernsehen Aachen,DE
+WDR Fernsehen Bielefeld,WDRFernsehen.de@Bielefeld,WDR Fernsehen Bielefeld,DE
+WDR Fernsehen Bonn,WDRFernsehen.de@Bonn,WDR Fernsehen Bonn,DE
+WDR Fernsehen Dortmund,WDRFernsehen.de@Dortmund,WDR Fernsehen Dortmund,DE
+WDR Fernsehen Duisburg,WDRFernsehen.de@Duisburg,WDR Fernsehen Duisburg,DE
+WDR Fernsehen Düsseldorf,WDRFernsehen.de@Duesseldorf,WDR Fernsehen Düsseldorf,DE
+WDR Fernsehen Essen,WDRFernsehen.de@Essen,WDR Fernsehen Essen,DE
+WDR Fernsehen Köln,WDRFernsehen.de@Koeln,WDR Fernsehen Köln,DE
+WDR Fernsehen Münster,WDRFernsehen.de@Muenster,WDR Fernsehen Münster,DE
+WDR Fernsehen Siegen,WDRFernsehen.de@Siegen,WDR Fernsehen Siegen,DE
+WDR Fernsehen Wuppertal,WDRFernsehen.de@Wuppertal,WDR Fernsehen Wuppertal,DE
+WDR Köln,WDRFernsehen.de@Koeln,WDR Fernsehen Köln,DE
+WDR Münster,WDRFernsehen.de@Muenster,WDR Fernsehen Münster,DE
+WDR Siegen,WDRFernsehen.de@Siegen,WDR Fernsehen Siegen,DE
+WDR Wuppertal,WDRFernsehen.de@Wuppertal,WDR Fernsehen Wuppertal,DE

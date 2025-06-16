@@ -79,6 +79,12 @@ sqlite3 -csv release/iptv-database.db ".import scripts/data/country_mapping.csv 
 echo "Import other epg provider"
 sqlite3 -csv release/iptv-database.db ".import scripts/data/other_epg.csv other_epg"
 
+# fixes
+echo "Import fixes"
+sqlite3 -csv release/iptv-database.db ".import scripts/data/fix_epgchannels_ard.csv fix_epgchannels_ard"
+sqlite3 -csv release/iptv-database.db ".import scripts/data/fix_channels.csv fix_channels"
+sqlite3 -csv release/iptv-database.db ".import scripts/data/fix_streams.csv fix_streams"
+
 #############################
 # first cleanup tables
 #############################
@@ -87,9 +93,9 @@ echo "DELETE FROM streams WHERE name IS NULL;" | sqlite3 release/iptv-database.d
 echo "DELETE FROM epg_channels WHERE name IS NULL;" | sqlite3 release/iptv-database.db
 
 # drop unused tables
-for i in blocklist; do
-    echo "DROP TABLE $i" | sqlite3 release/iptv-database.db
-done
+#for i in blocklist; do
+#    echo "DROP TABLE $i" | sqlite3 release/iptv-database.db
+#done
 
 # set null values
 for table in feeds categories countries subdivisions channels regions languages timezones epg_channels streams tld country_mapping; do
@@ -241,68 +247,24 @@ EOF
 fi
 
 #######################################################
-# prepare xmltv_id that later steps can match channels
+# apply fixes
 #######################################################
 echo "prepare xmltv_ids"
 
 cat <<'EOF' | sqlite3 release/iptv-database.db
-    UPDATE epg_channels SET xmltv_id = 'rbbFernsehen.de@Berlin', name = 'rbb Fernsehen Berlin' WHERE xmltv_id = 'rbbFernsehenBerlin.de';
-    UPDATE epg_channels SET xmltv_id = 'MDRFernsehen.de@Thueringen', name = 'MDR Fernsehen Thüringen' WHERE xmltv_id = 'MDRFernsehenThuringen.de';
-    UPDATE epg_channels SET xmltv_id = 'MDRFernsehen.de@SachsenAnhalt', name = 'MDR Fernsehen Sachsen-Anhalt' WHERE xmltv_id in ('MDRFernsehenSachsenAnhalt.de', 'MDRFernsehenSachsen-Anhalt.de');
-    UPDATE epg_channels SET xmltv_id = 'MDRFernsehen.de@Sachsen', name = 'MDR Fernsehen Sachsen' WHERE xmltv_id in ('MDRFernsehenSachsen.de', 'MDRFernsehenHD.de');
-    UPDATE epg_channels SET xmltv_id = 'MDRFernsehen.de@Sachsen', name = 'MDR Fernsehen Sachsen' WHERE name IN ('MDR Fernsehen', 'MDR');
-    UPDATE epg_channels SET xmltv_id = 'BRFernsehen.de@Nord', name = 'BR Fernsehen Nord' WHERE xmltv_id in ('BRFernsehenNord.de', 'BRFernsehenNord.de@HD');
-    UPDATE epg_channels SET xmltv_id = 'BRFernsehen.de@Nord', name = 'BR Fernsehen Nord' WHERE name in ('BR Fernsehen Nord');
-    UPDATE epg_channels SET xmltv_id = 'BRFernsehen.de@Sued', name = 'BR Fernsehen Süd' WHERE name in ('BR', 'BR Fernsehen', 'BR Fernsehen Süd');
-    UPDATE epg_channels SET xmltv_id = 'BRFernsehen.de@Sued', name = 'BR Fernsehen Süd' WHERE xmltv_id in ('BRFernsehenSud.de', 'BRFernsehenHD.de');
-    UPDATE epg_channels SET xmltv_id = 'WDRFernsehen.de@Wuppertal', name = 'WDR Fernsehen Wuppertal' WHERE xmltv_id = 'WDRFernsehenWuppertal.de';
-    UPDATE epg_channels SET xmltv_id = 'WDRFernsehen.de@Siegen', name = 'WDR Fernsehen Siegen' WHERE xmltv_id = 'WDRFernsehenSiegen.de';
-    UPDATE epg_channels SET xmltv_id = 'WDRFernsehen.de@Muenster', name = 'WDR Fernsehen Münster' WHERE xmltv_id = 'WDRFernsehenMunster.de';
-    UPDATE epg_channels SET xmltv_id = 'WDRFernsehen.de@Koeln', name = 'WDR Fernsehen Köln' WHERE xmltv_id in ('WDRFernsehenKoln.de', 'WDRFernsehenHD.de');
-    UPDATE epg_channels SET xmltv_id = 'WDRFernsehen.de@Essen', name = 'WDR Fernsehen Essen' WHERE xmltv_id = 'WDRFernsehenEssen.de';
-    UPDATE epg_channels SET xmltv_id = 'WDRFernsehen.de@Duesseldorf', name = 'WDR Fernsehen Düsseldorf' WHERE xmltv_id = 'WDRFernsehenDusseldorf.de';
-    UPDATE epg_channels SET xmltv_id = 'WDRFernsehen.de@Duisburg', name = 'WDR Fernsehen Duisburg' WHERE xmltv_id = 'WDRFernsehenDuisburg.de';
-    UPDATE epg_channels SET xmltv_id = 'WDRFernsehen.de@Dortmund', name = 'WDR Fernsehen Dortmund' WHERE xmltv_id = 'WDRFernsehenDortmund.de';
-    UPDATE epg_channels SET xmltv_id = 'WDRFernsehen.de@Bonn', name = 'WDR Fernsehen Bonn' WHERE xmltv_id = 'WDRFernsehenBonn.de';
-    UPDATE epg_channels SET xmltv_id = 'WDRFernsehen.de@Bielefeld', name = 'WDR Fernsehen Bielefeld' WHERE xmltv_id = 'WDRFernsehenBielefeld.de';
-    UPDATE epg_channels SET xmltv_id = 'WDRFernsehen.de@Aachen', name = 'WDR Fernsehen Aachen' WHERE xmltv_id = 'WDRFernsehenAachen.de';
-    UPDATE epg_channels SET xmltv_id = 'WDRFernsehen.de@Koeln', name = 'WDR Fernsehen Köln' WHERE name IN ('WDR Fernsehen', 'WDR', 'WDR Fernsehen Köln');
-    UPDATE epg_channels SET xmltv_id = 'NDRFernsehen.de@SchleswigHolstein', name = 'NDR Fernsehen Schleswig-Holstein' WHERE xmltv_id = 'NDRFernsehenSchleswigHolstein.de';
-    UPDATE epg_channels SET xmltv_id = 'NDRFernsehen.de@SchleswigHolstein', name = 'NDR Fernsehen Schleswig-Holstein' WHERE name = 'NDR Fernsehen SH';
-    UPDATE epg_channels SET xmltv_id = 'NDRFernsehen.de@Niedersachsen', name = 'NDR Fernsehen Niedersachsen' WHERE xmltv_id = 'NDRFernsehenNiedersachsen.de';
-    UPDATE epg_channels SET xmltv_id = 'NDRFernsehen.de@Niedersachsen', name = 'NDR Fernsehen Niedersachsen' WHERE name = 'NDR Fernsehen NDS';
-    UPDATE epg_channels SET xmltv_id = 'NDRFernsehen.de@MecklenburgVorpommern', name = 'NDR RFernsehen Mecklenburg-Vorpommern' WHERE xmltv_id = 'NDRFernsehenMecklenburgVorpommern.de';
-    UPDATE epg_channels SET xmltv_id = 'NDRFernsehen.de@MecklenburgVorpommern', name = 'NDR Fernsehen Mecklenburg-Vorpommern' WHERE name = 'NDR Fernsehen MV';
-    UPDATE epg_channels SET xmltv_id = 'NDRFernsehen.de@Hamburg', name = 'NDR Fernsehen Hamburg' WHERE xmltv_id in ('NDRFernsehenHamburg.de', 'NDRFernsehenHD.de');
-    UPDATE epg_channels SET xmltv_id = 'NDRFernsehen.de@Hamburg', name = 'NDR Fernsehen Hamburg' WHERE name IN ('NDR Fernsehen', 'NDR Fernsehen HH', 'NDR');
-    UPDATE epg_channels SET xmltv_id = 'SWRFernsehen.de@BadenWuerttemberg', name = 'SWR Fernsehen Baden-Württemberg' WHERE name IN ('SWR', 'SWR Baden-Württemberg', 'SWR Fernsehen BW', 'SWR-Fernsehen', 'SWR/SR', 'SWR1 Baden-Württemberg');
-    UPDATE epg_channels SET xmltv_id = 'SWRFernsehen.de@RheinlandPfalz', name = 'SWR Fernsehen Rheinland-Pfalz' WHERE name IN ('SWR Fernsehen RP');
+    DELETE from channels where name = 'SWR Fernsehen HD';
 
-    UPDATE streams SET xmltv_id = 'MDRFernsehen@Thueringen.de', name = 'MDR Fernsehen Thüringen' WHERE xmltv_id = 'MDRFernsehenThuringen.de';
-    UPDATE streams SET xmltv_id = 'BRFernsehen@Sued.de', name = 'BR Fernsehen Süd' WHERE name in ('BR', 'BR Fernsehen', 'BR Fernsehen Süd');
-    UPDATE streams SET xmltv_id = 'WDRFernsehen@Muenster.de', name = 'WDR Fernsehen Münster' WHERE xmltv_id = 'WDRFernsehenMunster.de';
-    UPDATE streams SET xmltv_id = 'WDRFernsehen@Koeln.de', name = 'WDR Fernsehen Köln' WHERE xmltv_id in ('WDRFernsehenKoln.de', 'WDRFernsehenHD.de');
-    UPDATE streams SET xmltv_id = 'WDRFernsehen@Duesseldorf.de', name = 'WDR Fernsehen Düsseldorf' WHERE xmltv_id = 'WDRFernsehenDusseldorf.de';
-    UPDATE streams SET xmltv_id = 'SWRFernsehen@BadenWuerttemberg.de', name = 'SWR Fernsehen Baden-Württemberg' WHERE xmltv_id = 'SWRFernsehenBadenWurttemberg.de';
+    UPDATE channels
+    SET (xmltv_id, name) = (SELECT xmltv_id_new, name_new FROM fix_channels WHERE channels.name = name_old)
+    WHERE channels.name IN (SELECT name_old FROM fix_channels);
 
     UPDATE epg_channels
-    SET xmltv_id = substr(name, 0, instr(name, ' ')) || 'Fernsehen.de@' || replace(replace(replace(replace(substr(name, instr(name, ' ') + 1), 'ö', 'oe'), 'ü', 'ue'), 'ä', 'ae'),'-',''),
-        name =  substr(name, 0, instr(name, ' ')) || ' Fernsehen ' || substr(name, instr(name, ' ') + 1)
-    WHERE name IN ('WDR Aachen', 'WDR Bielefeld', 'WDR Bonn', 'WDR Dortmund', 'WDR Duisburg',
-                   'WDR Essen', 'WDR Köln', 'WDR Münster', 'WDR Siegen', 'WDR Wuppertal', 'WDR Düsseldorf',
-                   'MDR Sachsen', 'MDR Sachsen-Anhalt', 'MDR Thüringen',
-                   'NDR Hamburg', 'NDR Niedersachsen', 'NDR Schleswig-Holstein', 'NDR Mecklenburg-Vorpommern'
-                   );
+    SET (xmltv_id, name, country) = (SELECT xmltv_id_new, name_new, country FROM fix_epgchannels_ard WHERE epg_channels.name = name_old)
+    WHERE epg_channels.name IN (SELECT name_old FROM fix_epgchannels_ard);
 
-    UPDATE epg_channels
-    SET xmltv_id = 'rbbFernsehen.de@Berlin',
-        name = 'rbb Fernsehen Berlin'
-    WHERE name in ('rbb', 'RBB', 'RBB Berlin', 'RBB Fernsehen', 'RBB Berlin Fernsehen', 'rbb Berlin', 'RBB Fernsehen Berlin', 'rbb Berlin', 'rbb fernsehen Berlin');
-
-    UPDATE epg_channels
-    SET xmltv_id = 'rbbFernsehen.de@Brandenburg',
-        name = 'rbb Fernsehen Brandenburg'
-    WHERE name in ('RBB Fernsehen Brandenburg', 'rbb fernsehen Brandenburg', 'RBB Fernsehen Brandenburg', 'RBB Brandenburg Fernsehen', 'RBB Brandenburg');
+    UPDATE streams
+    SET xmltv_id = (SELECT xmltv_id_new FROM fix_streams WHERE streams.xmltv_id = xmltv_id_old)
+    WHERE streams.xmltv_id IN (SELECT xmltv_id_old FROM fix_streams);
 
     UPDATE epg_channels
     SET xmltv_id = substr(xmltv_id, 0, instr(xmltv_id, '@'))
@@ -322,6 +284,92 @@ cat <<'EOF' | sqlite3 release/iptv-database.db
     OR xmltv_id LIKE '%@UltraHD'
     OR xmltv_id LIKE '%@UltraHDR';
 
+    -- fix some channel names
+    UPDATE epg_channels SET name = (
+                SELECT name
+                FROM channels c
+                WHERE c.xmltv_id = epg_channels.xmltv_id
+            )
+    WHERE site = 'bein.com';
+
+    UPDATE epg_channels SET name = coalesce((
+        SELECT IIF(length(name) > length(epg_channels.name), name, epg_channels.name)
+        FROM channels c
+        WHERE c.xmltv_id = epg_channels.xmltv_id
+        and   upper(c.name) <> upper(epg_channels.name)
+    ), name);
+
+    UPDATE streams SET name = coalesce((
+        SELECT IIF(length(name) > length(streams.name), name, streams.name)
+        FROM channels c
+        WHERE c.xmltv_id = streams.xmltv_id
+        and   upper(c.name) <> upper(streams.name)
+    ), name);
+
+    -- update web.magentatv.de SKY channels
+    UPDATE epg_channels SET xmltv_id = replace(name, ' ', '') || '.de',
+                            country = 'DE'
+    WHERE site ='web.magentatv.de'
+    AND name LIKE 'Sky Sport%';
+
+    -- set well known xmltv_ids
+    UPDATE epg_channels SET xmltv_id = (
+        SELECT c.xmltv_id
+          FROM channels c
+         WHERE c.name = epg_channels.name
+           AND c.name IS NOT NULL
+        GROUP BY c.name having count(c.name) = 1
+    )
+    WHERE xmltv_id IS NULL;
+
+    UPDATE streams SET xmltv_id = (
+        SELECT c.xmltv_id
+          FROM channels c
+         WHERE c.name = streams.name
+           AND c.name IS NOT NULL
+        GROUP BY c.name having count(c.name) = 1
+    )
+    WHERE xmltv_id IS NULL;
+
+    UPDATE epg_channels SET xmltv_id = (
+        SELECT c.xmltv_id
+          FROM epg_channels c
+         WHERE c.name = epg_channels.name
+           AND c.name is not null
+           AND c.xmltv_id is not null
+        GROUP BY c.name HAVING count(c.name) = 1
+    )
+    WHERE xmltv_id IS NULL;
+
+    UPDATE streams SET xmltv_id = (
+        SELECT c.xmltv_id
+          FROM streams c
+         WHERE c.name = streams.name
+           AND c.name is not null
+           AND c.xmltv_id is not null
+        GROUP BY c.name HAVING count(c.name) = 1
+    )
+    WHERE xmltv_id IS NULL;
+
+    UPDATE epg_channels set xmltv_id = (
+        SELECT c.xmltv_id
+          FROM streams c
+         WHERE c.name = epg_channels.name
+           AND c.name is not null
+           AND c.xmltv_id is not null
+        GROUP BY c.name HAVING count(c.name) = 1
+    )
+    WHERE xmltv_id IS NULL;
+
+    UPDATE streams set xmltv_id = (
+        SELECT c.xmltv_id
+          FROM epg_channels c
+         WHERE c.name = streams.name
+           AND c.name is not null
+           AND c.xmltv_id is not null
+        GROUP BY c.name HAVING count(c.name) = 1
+    )
+    WHERE xmltv_id IS NULL;
 EOF
 
 ############################################
@@ -329,7 +377,7 @@ EOF
 ############################################
 echo "add countries"
 cat <<'EOF' | sqlite3 release/iptv-database.db
-    UPDATE epg_channels SET country = substr(substr(xmltv_id, instr(xmltv_id, '.') + 1), 0, IIF(instr(substr(xmltv_id, instr(xmltv_id, '.') + 1), '@') > 0, instr(substr(xmltv_id, instr(xmltv_id, '.') + 1), '@'), 200))
+    UPDATE epg_channels SET country = upper(substr(substr(xmltv_id, instr(xmltv_id, '.') + 1), 0, IIF(instr(substr(xmltv_id, instr(xmltv_id, '.') + 1), '@') > 0, instr(substr(xmltv_id, instr(xmltv_id, '.') + 1), '@'), 200)))
     WHERE country IS NULL
     AND   xmltv_id IS NOT NULL;
 
@@ -337,19 +385,6 @@ cat <<'EOF' | sqlite3 release/iptv-database.db
     SET country = upper(substr(file, 0, 3))
     WHERE country is null;
 EOF
-
-############################################
-# change alt_names
-############################################
-echo "change alt_names"
-
-cat <<'EOF' | sqlite3 release/iptv-database.db | scripts/alt_names.pl > tmp_name
-    SELECT name, alt_names FROM channels
-    WHERE alt_names IS NOT NULL
-EOF
-
-cat tmp_name | sqlite3 release/iptv-database.db
-rm tmp_name
 
 ############################################
 # align all names
