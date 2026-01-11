@@ -24,13 +24,14 @@ fi
 
 # clean tables if they exists
 if [ -e release/iptv-database.db ]; then
-    cat <<'EOF' | sqlite3 release/iptv-database.db
-        PRAGMA writable_schema = 1;
-        delete from sqlite_master where type in ('table', 'index', 'trigger');
-        PRAGMA writable_schema = 0;
-        VACUUM;
-        PRAGMA INTEGRITY_CHECK;
-EOF
+    rm release/iptv-database.db
+    #cat <<'EOF' | sqlite3 release/iptv-database.db
+    #    PRAGMA writable_schema = 1;
+    #    delete from sqlite_master where type in ('table', 'index', 'trigger');
+    #    PRAGMA writable_schema = 0;
+    #    VACUUM;
+    #    PRAGMA INTEGRITY_CHECK;
+#EOF
 fi
 
 ##########################
@@ -45,7 +46,6 @@ for i in $(find database/data -name *.csv); do
 done
 
 echo -e $DATA | sqlite3 -csv release/iptv-database.db
-
 
 # eog/sites
 echo "Import epg/sites"
@@ -81,7 +81,7 @@ sqlite3 -csv release/iptv-database.db ".import scripts/data/other_epg.csv other_
 
 # fixes
 echo "Import fixes"
-sqlite3 -csv release/iptv-database.db ".import scripts/data/fix_epgchannels_ard.csv fix_epgchannels_ard"
+sqlite3 -csv release/iptv-database.db ".import scripts/data/fix_epgchannels.csv fix_epgchannels"
 sqlite3 -csv release/iptv-database.db ".import scripts/data/fix_channels.csv fix_channels"
 sqlite3 -csv release/iptv-database.db ".import scripts/data/fix_streams.csv fix_streams"
 
@@ -173,7 +173,6 @@ echo "add references to table channels"
 
 echo "ALTER TABLE streams ADD COLUMN ref_channel_id INTEGER REFERENCES channel(id)" | sqlite3 release/iptv-database.db
 echo "ALTER TABLE epg_channels ADD COLUMN ref_channel_id INTEGER REFERENCES channel(id)" | sqlite3 release/iptv-database.db
-
 
 ############################################
 # add logging table and triggers
@@ -267,8 +266,8 @@ cat <<'EOF' | sqlite3 release/iptv-database.db
     WHERE channels.name IN (SELECT name_old FROM fix_channels);
 
     UPDATE epg_channels
-    SET (xmltv_id, name, country) = (SELECT xmltv_id_new, name_new, country FROM fix_epgchannels_ard WHERE epg_channels.name = name_old)
-    WHERE epg_channels.name IN (SELECT name_old FROM fix_epgchannels_ard);
+    SET (xmltv_id, name, country) = (SELECT xmltv_id_new, name_new, country FROM fix_epgchannels WHERE epg_channels.name = name_old)
+    WHERE epg_channels.name IN (SELECT name_old FROM fix_epgchannels);
 
     UPDATE streams
     SET xmltv_id = (SELECT xmltv_id_new FROM fix_streams WHERE streams.xmltv_id = xmltv_id_old)
